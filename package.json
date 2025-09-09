@@ -1,0 +1,47 @@
+{
+  "name": "my-summer-camp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ant-design/nextjs-registry": "^1.1.0",
+    "@prisma/client": "^6.13.0",
+    "@tanstack/query-sync-storage-persister": "^5.87.1",
+    "@tanstack/react-query": "^5.85.3",
+    "@tanstack/react-query-devtools": "^5.85.3",
+    "@tanstack/react-query-persist-client": "^5.87.1",
+    "@tanstack/react-table": "^8.21.3",
+    "antd": "^5.26.7",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
+    "dayjs": "^1.11.13",
+    "firebase": "^12.1.0",
+    "google-auth-library": "^10.3.0",
+    "googleapis": "^159.0.0",
+    "gsap": "^3.13.0",
+    "jodit-react": "^5.2.19",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.3",
+    "next": "15.4.6",
+    "prisma": "^6.13.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
+    "stripe": "^18.5.0",
+    "uuid": "^12.0.0",
+    "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  }
+}

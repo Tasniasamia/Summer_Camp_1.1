@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 3s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Ant Design customizations */
+.ant-form-item {
+  margin-bottom: 1rem !important;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: 0.5rem !important;
+  border: 2px solid #e5e7eb !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-input-affix-wrapper:hover {
+  border-color: #14b8a6 !important;
+}
+
+.ant-input-affix-wrapper-focused {
+  border-color: #14b8a6 !important;
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.1) !important;
+}
+
+.ant-btn-primary {
+  transition: all 0.3s ease !important;
+  transform: translateY(0) !important;
+}
+
+.ant-btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3) !important;
+}
+
+.ant-card {
+  transition: all 0.3s ease !important;
+}
+
+.ant-checkbox-wrapper {
+  font-size: 14px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .ant-card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .ant-typography h2 {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-card-body {
+    padding: 1rem !important;
+  }
+  
+  .ant-input-affix-wrapper,
+  .ant-btn {
+    height: 48px !important;
+  }
+}
+
+/* Background pattern */
+body {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Loading animation */
+.ant-btn-loading-icon {
+  margin-right: 8px !important;
+}
+.header-1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  font-weight: 600; /* Semibold */
+  margin-top: 37px;
+}
+
+.header-11 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  font-weight: 600; /* Semibold */
+  margin-top: 37px;
+}
+.custom-container{
+  max-width:1320px;
+  margin:0 auto;
+  padding:0 10px;
+}
+.custom-container2{
+  max-width:1509px;
+  margin:0 auto;
+  padding:0 10px;
+}
+

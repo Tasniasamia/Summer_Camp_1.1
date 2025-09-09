@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "site": "summer-camp-4068a",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}

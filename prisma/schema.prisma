@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  student
+  instructor
+}
+
+model User {
+  id              Int           @id @default(autoincrement())
+  email           String?       @unique
+  password        String?
+  address         String?
+  phone_number    String?
+  image           Json?
+  role            UserRole?
+  name            String?
+  rate            Float?
+  experience      Int?
+  classInstructor Class[]       @relation("InstructorToClass") // multiple classes
+  enroll          enrollClass[]
+  createdAt       DateTime      @default(now())
+  package purchasePackage?
+}
+
+model Otp {
+  id       Int      @id @default(autoincrement())
+  action   String
+  email    String
+  otp      String?
+  isVerify Boolean?
+}
+
+model category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  image Json?
+  Class Class?
+}
+
+model Class {
+  id           Int       @id @default(autoincrement())
+  name         String?
+  price        Float?
+  rate         Float?
+  description  String?   @db.VarChar(10000)
+  duration     String?
+  time         String?
+  days         Json? // JSON type
+  place        String?
+  createdAt    DateTime  @default(now())
+  sit          Int?
+  enrollment   Int?
+  status       Boolean   @default(true)
+  image        Json?
+  category     category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryId   Int?      @unique
+  instructor   User?     @relation("InstructorToClass", fields: [instructorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  instructorId Int?
+
+  enroll enrollClass[]
+}
+
+enum paymentStatus {
+  paid
+  failed
+  pending
+  cancel
+}
+enum paymentMethod {
+  stripe
+  sslcommerze
+  paypal
+  razorpay
+}
+model enrollClass {
+  id            Int           @id @default(autoincrement())
+  name          String?
+  classId       Int
+  class         Class         @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  status        paymentStatus @default(pending)
+  transactionId String?       @unique
+  createdAt     DateTime      @default(now())
+  sessionkey    String?
+  payment          paymentMethod  @default(sslcommerze) 
+}
+
+model Package {
+  id        Int      @id @default(autoincrement())
+  name      String
+  tagline   String?
+  price     Float
+  features  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  purchases     purchasePackage[] 
+}
+
+model purchasePackage {
+  id            Int           @id @default(autoincrement())
+  name          String?
+  packageId     Int
+  package       Package       @relation(fields: [packageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        Int           @unique 
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  status        paymentStatus @default(pending)
+  transactionId String?       @unique
+  createdAt     DateTime      @default(now())
+  sessionkey    String?
+  payment          paymentMethod @default(sslcommerze)
+}
+
+
+model faq {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  rate        Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model subscribe {
+  id        Int      @id @default(autoincrement())
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model contact {
+  id        Int      @id @default(autoincrement())
+  email     String
+  name      String
+  phone     String
+  message   String
+  reply     String?
+  isReply   Boolean? @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Slug {
+  home
+  about
+  contact
+  terms_condition
+  privacy_policy
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  slug      Slug     @unique
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model conversation {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  person       Int      
+  person_name  String?
+  person_email String?
+  image        Json?
+  role         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+}
+
+model message {
+  id        Int      @id @default(autoincrement())
+  sender    Int
+  message   Json?
+  receiver  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+
+
+model GoogleToken {
+  id           Int    @id
+  accessToken  String
+  refreshToken String
+  expiryDate   DateTime
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement())
+  summary     String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  attendees   String
+  meetLink    String
+  eventId     String
+}
