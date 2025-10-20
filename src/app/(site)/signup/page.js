@@ -6,90 +6,55 @@ import {
   Card,
   Typography,
   Divider,
-  Checkbox,
-  Spin,
   Radio,
+  Spin,
+  message,
 } from "antd";
-import {
-  FaLock,
-  FaEnvelope,
-} from "react-icons/fa";
-import { useAuth } from "@/helpers/context/authContext";
-import toast from "react-hot-toast";
+import { FaLock, FaEnvelope, FaPhone, FaUser } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query"; // ✅ React Query import
+import axios from "axios";
+
 const { Title, Text } = Typography;
+
+// ✅ API helper
+const sendOTP = async (params = {}) => {
+  const res = await axios.post("/otp/send", params);
+  return res.data;
+};
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const { currentUser,setCurrentUser, signup, signin, user,setUser,loading2 } =useAuth();
-  const {push}=useRouter();
-  console.log("loading", loading);
-  const handleSubmit = async (values) => {
-    try {
-      setLoading(true);
-      if (!isLogin) {
-        // await signup(values.email, values.password);
-        } else {
-        // console.log("login res",loginRes);
-        const dbRes = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: values?.email,
-            password: values?.password,
-            role: values?.role
-          }),
-        });
-        const dbData = await dbRes.json();
-        console.log("DB response", dbData);
-      
-        if (dbData.success) {
-          if(!currentUser){
-            setIsLogin(true);
-             toast.success(dbData?.msg || 'User Created Successfully');
-             toast.success("Loggedin Successfully");
-             switch (dbData?.user?.role) {
-                case "instructor":
-                push("/trainer");
-                setUser(dbData?.user);
-                localStorage.setItem('token',dbData?.token);
-                break;
-               case "admin":
-                push("/admin");
-                setUser(dbData?.user);
-                localStorage.setItem('token',dbData?.token);
-                break;
-                default:
-                push("/user");
-                setUser(dbData?.user);
-                localStorage.setItem('token',dbData?.token);
-                break;
-            } }
-          else{
-            toast.error("Already authenticate");
-          }
-        }
-         else {
-          toast.error("No Create User Into Database");
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Authentication Failed");
-    } finally {
-      setLoading(false); 
-    }
-  };
+  const { push } = useRouter();
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    form.resetFields();
+  const sendOTPMutation = useMutation({
+    mutationFn: (payload) => sendOTP(payload),
+    onSuccess: (res, variables) => {
+      if (res?.success) {
+        message.success(res?.message || "OTP sent successfully!");
+        push(`/otp?email=${variables.identifier}&action=signup`);
+      } else {
+        message.error(res?.errorMessage || "Failed to send OTP.");
+      }
+    },
+    onError: (error) => {
+      console.error("OTP send error:", error);
+      message.error("Something went wrong while sending OTP.");
+    },
+  });
+
+  // ✅ Handle form submit
+  const handleSubmit = async (values) => {
+    const payload = {
+      identifier: values?.email,
+      action: "signup",
+    };
+    sendOTPMutation.mutate(payload);
   };
 
   return (
-    <div className="min-h-screen  pt-44 mb-44 flex items-center justify-center p-4 relative">
+    <div className="min-h-screen pt-44 mb-44 flex items-center justify-center p-4 relative">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 bg-orange-300 rounded-full opacity-20 animate-bounce"></div>
@@ -109,36 +74,46 @@ export default function AuthPage() {
             </div>
           </div>
           <Title level={2} className="!mb-2 !text-gray-800">
-            {isLogin ? "Welcome Back!" : "Join Summer Camp!"}
+            Join Summer Camp!
           </Title>
           <Text className="text-gray-600">
-            {isLogin
-              ? "Sign in to access your camp adventure"
-              : "Create your account for an amazing summer experience"}
+            Create your account for an amazing summer experience
           </Text>
         </div>
 
         <Form
           form={form}
-          name={isLogin ? "login" : "register"}
+          name={"register"}
           onFinish={handleSubmit}
           layout="vertical"
           size="large"
           className="space-y-4"
         >
-        {isLogin && ( <Form.Item
+          {isLogin && (
+            <Form.Item
               name="role"
               rules={[{ required: true, message: "Please select your role!" }]}
             >
               <Radio.Group>
-              <Radio value="admin">Admin</Radio>
-              <Radio value="instructor">Instructor</Radio>
-              <Radio value="student">Student</Radio>
+                <Radio value="ADMIN">ADMIN</Radio>
+                <Radio value="TEACHER">TEACHER</Radio>
+                <Radio value="USER">USER</Radio>
               </Radio.Group>
-            </Form.Item>)}
-           
-     
-           <Form.Item
+            </Form.Item>
+          )}
+
+          <Form.Item
+            name="Name"
+            rules={[{ required: true, message: "Please enter your name!" }]}
+          >
+            <Input
+              prefix={<FaUser className="text-gray-400" />}
+              placeholder="Name"
+              className="rounded-lg h-12"
+            />
+          </Form.Item>
+
+          <Form.Item
             name="email"
             rules={[
               { required: true, message: "Please enter your email!" },
@@ -148,6 +123,17 @@ export default function AuthPage() {
             <Input
               prefix={<FaEnvelope className="text-gray-400" />}
               placeholder="Email Address"
+              className="rounded-lg h-12"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="phone"
+            rules={[{ required: true, message: "Please enter your phone!" }]}
+          >
+            <Input
+              prefix={<FaPhone className="text-gray-400" />}
+              placeholder="Phone Number"
               className="rounded-lg h-12"
             />
           </Form.Item>
@@ -166,56 +152,13 @@ export default function AuthPage() {
             />
           </Form.Item>
 
-          {!isLogin && (
-            <Form.Item
-              name="confirmPassword"
-              dependencies={["password"]}
-              rules={[
-                { required: true, message: "Please confirm your password!" },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Passwords do not match!"));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                prefix={<FaLock className="text-gray-400" />}
-                placeholder="Confirm Password"
-                className="rounded-lg h-12"
-              />
-            </Form.Item>
-          )}
-
-          {isLogin && (
-            <Form.Item name="remember" valuePropName="checked">
-              <Checkbox className="text-gray-600">Remember me</Checkbox>
-            </Form.Item>
-          )}
-
-          {!isLogin && (
-            <Form.Item name="terms" valuePropName="checked">
-              <Checkbox className="text-gray-600">
-                I agree to the{" "}
-                <a href="#" className="text-orange-600 hover:text-orange-700">
-                  Terms and Conditions
-                </a>
-              </Checkbox>
-            </Form.Item>
-          )}
-
           <Form.Item className="!mb-6">
-            <button className="w-full !text-white h-12 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 border-0 hover:from-yellow-600 hover:to-orange-600 font-semibold text-lg shadow-lg">
-              {(loading||loading2) ? (
-                <Spin />
-              ) : isLogin ? (
-                "🚀 Sign In"
-              ) : (
-                "🎉 Create Account"
-              )}
+            <button
+              type="submit"
+              className="w-full !text-white h-12 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 border-0 hover:from-yellow-600 hover:to-orange-600 font-semibold text-lg shadow-lg"
+              disabled={sendOTPMutation.isLoading}
+            >
+              {sendOTPMutation.isLoading ? <Spin /> : "🎉 Create Account"}
             </button>
           </Form.Item>
         </Form>
@@ -225,25 +168,9 @@ export default function AuthPage() {
         </Divider>
 
         <div className="text-center space-y-4">
-          <button
-            className="w-full h-12 rounded-lg text-orange-500 border-2 border-gray-200 hover:border-orange-300 font-medium"
-            onClick={toggleMode}
-          >
-            {isLogin
-              ? "Don't have an account? Join the fun! 🎪"
-              : "Already have an account? Welcome back! 👋"}
+          <button className="w-full h-12 rounded-lg text-orange-500 border-2 border-gray-200 hover:border-orange-300 font-medium">
+            Already have an account? Welcome back!
           </button>
-
-          {isLogin && (
-            <div className="pt-2">
-              <a
-                href="#"
-                className="text-orange-600 hover:text-orange-700 text-sm"
-              >
-                Forgot your password? 🤔
-              </a>
-            </div>
-          )}
         </div>
 
         <div className="mt-8 text-center">

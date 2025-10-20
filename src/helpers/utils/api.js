@@ -7,3 +7,5 @@ export const getAllCategory=(params={})=>get("/class/category",params);
 //users
 export const getAllUser=(params={})=>get("/user",params);
 
+//authentications 
+export const sendOTP = (params = {}) => post("/otp/send", params);

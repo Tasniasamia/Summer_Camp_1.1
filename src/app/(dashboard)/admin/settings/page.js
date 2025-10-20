@@ -15,6 +15,7 @@ import { useAuth } from "@/helpers/context/authContext";
 import toast from "react-hot-toast";
 import { useFetch, useMutationAction } from "@/helpers/utils/hooks";
 import UserDashboardSkeleton from "@/components/(site)/skeleton/dashboardSkeleton";
+import MultipleImageInput from "@/components/(site)/common/form/multipleImage";
 const { TextArea } = Input;
 
 export default function FormsPage() {
@@ -30,46 +31,118 @@ export default function FormsPage() {
     profileUpdate,
     changePassword,
   } = useAuth();
-  const { data, isLoading, error } = useFetch("profile", "/user");
+  // const { data, isLoading, error } = useFetch("profile", "/user");
+  /*my code*/
+  const [data,setData]=useState({});
+  useEffect(()=>{
+    (async()=>{
+    const fetchData=await fetch('http://localhost:4000/api/v1/auth/profile');
+    const res=await fetchData.json();
+    setData(res?.data);
+    })()
+  },[])
   console.log("fetchData", data);
+    /*my code*/
+
   useEffect(() => {
-    if (data?.data) {
+      /*my code*/
+
+    if (data) {
       form.setFieldsValue({
-        name: data?.data?.name || "",
-        email: data?.data?.email || "",
-        phone_number: data?.data?.phone_number || "",
-        address: data?.data?.address || "",
-        id: data?.data?.id,
-        image: data?.data?.image
+        name: data?.name || "",
+        email: data?.email || "",
+        phone: data?.phone_number || "",
+        address: data?.address || "",
+        id: data?.id,
+
+        image: data?.image
           ? [
               {
                 uid: "-1",
                 name: "image.png",
                 status: "done",
-                url: data.data.image.url,
-                public_id: data.data.image.public_id,
+                url: data.image,
               },
             ]
           : [],
       });
+
     }
+      /*my code*/
+
+
+
+    // if (data?.data) {
+    //   form.setFieldsValue({
+    //     name: data?.data?.name || "",
+    //     email: data?.data?.email || "",
+    //     phone_number: data?.data?.phone_number || "",
+    //     address: data?.data?.address || "",
+    //     id: data?.data?.id,
+    //     image: data?.data?.image
+    //       ? [
+    //           {
+    //             uid: "-1",
+    //             name: "image.png",
+    //             status: "done",
+    //             url: data.data.image.url,
+    //             public_id: data.data.image.public_id,
+    //           },
+    //         ]
+    //       : [],
+    //   });
+    // }
   }, [data, form]);
-  const updateSetting = useMutationAction("update", "/user", "settings");
+  // const updateSetting = useMutationAction("update", "/user", "settings");
 
   // Profile form submission
   const onProfileFinish = async (values) => {
     console.log("Profile form values:", values);
-    const res = await updateSetting.mutateAsync(values);
-    console.log("after update", res);
     setLoading(true);
+  
     try {
-      toast.success("Profile updated successfully!");
+      // 🔹 FormData তৈরি (image থাকলে form-data পাঠাতে হবে)
+      const formData = new FormData();
+  
+      // text fields যোগ করো
+      formData.append("id", values.id);
+      formData.append("name", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone_number);
+      formData.append("address", values.address);
+      formData.append('password','12345678')
+  
+      // 🔹 image থাকলে সেটাও পাঠাও
+      if (values.image && values.image.length > 0) {
+        const imageFile = values.image[0]?.originFileObj; // Ant Design upload থেকে file object নেওয়া
+        if (imageFile) {
+          formData.append("image", imageFile);
+        }
+      }
+  
+      // 🔹 API call
+      const res = await fetch("http://localhost:4000/api/v1/auth/profile", {
+        method: "PUT", // backend route অনুযায়ী
+        body: formData,
+      });
+  
+      const result = await res.json();
+  
+      if (res.ok) {
+        toast.success("Profile updated successfully!");
+        console.log("✅ Updated Profile:", result);
+      } else {
+        toast.error(result?.message || "Failed to update profile");
+        console.error("❌ Update error:", result);
+      }
     } catch (error) {
-      toast.error("Failed to update profile");
+      console.error("Update failed:", error);
+      toast.error("Something went wrong while updating profile");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Password form submission
   const onPasswordFinish = async (values) => {
@@ -89,7 +162,12 @@ export default function FormsPage() {
       <Form form={form} layout="vertical" onFinish={onProfileFinish}>
         <Row gutter={24}>
           <Col xs={24} md={8}>
-            <Form.Item name="image" label="Profile Picture">
+          <MultipleImageInput
+            label="Card Image"
+            name="image"
+            
+          />
+            {/* <Form.Item name="image" label="Profile Picture">
               <ImageInput
                 max={1}
                 name="image"
@@ -110,7 +188,7 @@ export default function FormsPage() {
                   form.setFieldValue("image", imageObj)
                 }
               />
-            </Form.Item>
+            </Form.Item> */}
           </Col>
           <Form.Item name="id" hidden>
             <Input autoComplete="off" />
@@ -292,9 +370,9 @@ export default function FormsPage() {
             Manage your profile information and security settings
           </p>
         </div>
-        {isLoading ? (
+        {/* {isLoading ? (
           <UserDashboardSkeleton />
-        ) : (
+        ) : ( */}
           <Tabs
             centered
             defaultActiveKey="1"
@@ -302,7 +380,7 @@ export default function FormsPage() {
             size="large"
             className="bg-white rounded-lg shadow-sm bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 "
           />
-        )}
+        {/* )} */}
       </div>
     </div>
   );

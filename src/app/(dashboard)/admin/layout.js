@@ -258,7 +258,7 @@ function UserDropdown({ collapsed }) {
 
   return (
     <div className="relative">
-      <button
+      {/* <button
         onClick={() => setOpen(!open)}
         className="flex items-center w-full gap-3 rounded-md p-2 hover:bg-yellow-50 transition"
         aria-haspopup="true"
@@ -274,7 +274,7 @@ function UserDropdown({ collapsed }) {
           </div>
         )}
         {!collapsed && <FiChevronDown className="ml-auto h-4 w-4" />}
-      </button>
+      </button> */}
 
       {open && (
         <div className="absolute bottom-full mb-2 left-0 w-full rounded-md border border-gray-200 bg-white shadow-lg text-sm z-20">
@@ -322,26 +322,26 @@ export default function DashboardLayout({ children }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(3);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { data, isLoading, error } = useFetch("profile", "/user");
-  const { user, setUser, currentUser } = useAuth();
+  // const { data, isLoading, error } = useFetch("profile", "/user");
+  // const { user, setUser, currentUser } = useAuth();
 
-  useEffect(() => {
-    if (!data?.data) {
-      const token = localStorage.getItem("token");
-      if (token) {
-        return;
-      } else {
-        window.location.href = "/";
-      }
-    }
+  // useEffect(() => {
+  //   if (!data?.data) {
+  //     const token = localStorage.getItem("token");
+  //     if (token) {
+  //       return;
+  //     } else {
+  //       window.location.href = "/";
+  //     }
+  //   }
 
-    if (data?.data?.role !== "admin") {
-      toast.error("Please login as a admin");
-      window.location.href = "/";
-    } else {
-      setUser(data?.data);
-    }
-  }, [data]);
+  //   if (data?.data?.role !== "admin") {
+  //     toast.error("Please login as a admin");
+  //     window.location.href = "/";
+  //   } else {
+  //     setUser(data?.data);
+  //   }
+  // }, [data]);
 
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900">
